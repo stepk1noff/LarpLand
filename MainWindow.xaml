@@ -1,0 +1,1346 @@
+<Window x:Class="LarpLand.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        x:Name="MainWnd"
+        Title="LarpLand"
+        Height="650" Width="1100"
+        MinWidth="800" MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{DynamicResource PrimaryBrush}"
+        WindowStyle="None"
+        AllowsTransparency="False"
+        FontFamily="Consolas, Cascadia Mono, Courier New"
+        FontSize="13"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="Aliased">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="40"
+                      ResizeBorderThickness="5"
+                      GlassFrameThickness="0"
+                      CornerRadius="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <Color x:Key="PrimaryColor">#0A0F17</Color>
+        <SolidColorBrush x:Key="PrimaryBrush" Color="{DynamicResource PrimaryColor}"/>
+
+        <Color x:Key="AccentColor">#57C7F2</Color>
+        <SolidColorBrush x:Key="AccentBrush" Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="OnAccentBrush" Color="#061018"/>
+
+        <SolidColorBrush x:Key="PanelBrush" Color="#E2020509"/>
+        <SolidColorBrush x:Key="PanelSoftBrush" Color="#55010307"/>
+        <SolidColorBrush x:Key="LineBrush" Color="#24486A"/>
+        <SolidColorBrush x:Key="DeepBrush" Color="#010306"/>
+        <SolidColorBrush x:Key="TextBrush" Color="#D6E9F5"/>
+        <SolidColorBrush x:Key="MutedBrush" Color="#7A97AC"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#FF6B6B"/>
+        <SolidColorBrush x:Key="OkBrush" Color="#7CE8B0"/>
+
+        <DrawingBrush x:Key="DotGridBrush" TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute" Stretch="None">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing Brush="#14315066">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,2,2"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <DrawingBrush x:Key="DotRowBrush" TileMode="Tile" Viewport="0,0,6,2" ViewportUnits="Absolute" Stretch="None">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing Brush="#3A5F86">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,2,2"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <DrawingBrush x:Key="ScanlineBrush" TileMode="Tile" Viewport="0,0,3,3" ViewportUnits="Absolute" Stretch="None">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing Brush="#12000000">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,3,1"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <DrawingBrush x:Key="SegmentMaskBrush" TileMode="Tile" Viewport="0,0,7,12" ViewportUnits="Absolute" Stretch="None">
+            <DrawingBrush.Drawing>
+                <GeometryDrawing Brush="White">
+                    <GeometryDrawing.Geometry>
+                        <RectangleGeometry Rect="0,0,5,12"/>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+
+        <Geometry x:Key="IconPlay">F1 M2,1 H5 V3 H7 V5 H9 V7 H11 V9 H9 V11 H7 V13 H5 V15 H2 Z</Geometry>
+        <Geometry x:Key="IconStop">F1 M3,3 H13 V13 H3 Z</Geometry>
+        <Geometry x:Key="IconDownload">F1 M6,1 H10 V7 H14 V9 H12 V11 H10 V13 H6 V11 H4 V9 H2 V7 H6 Z M2,14 H14 V16 H2 Z</Geometry>
+        <Geometry x:Key="IconGear">F1 M6,0 H10 V2 H12 V0 H14 V4 H16 V6 H14 V10 H16 V12 H14 V16 H12 V14 H10 V16 H6 V14 H4 V16 H2 V12 H0 V10 H2 V6 H0 V4 H2 V0 H4 V2 H6 Z M6,6 H10 V10 H6 Z</Geometry>
+        <Geometry x:Key="IconDoc">F1 M2,0 H10 V4 H14 V16 H2 Z M4,6 H12 V8 H4 Z M4,9 H12 V11 H4 Z M4,12 H9 V14 H4 Z</Geometry>
+        <Geometry x:Key="IconFork">F1 M1,1 H5 V5 H1 Z M11,1 H15 V5 H11 Z M6,11 H10 V15 H6 Z M2,5 H4 V7 H12 V5 H14 V9 H9 V11 H7 V9 H2 Z</Geometry>
+        <Geometry x:Key="IconFolder">F1 M1,2 H6 V4 H15 V14 H1 Z</Geometry>
+        <Geometry x:Key="IconPlus">F1 M7,2 H9 V7 H14 V9 H9 V14 H7 V9 H2 V7 H7 Z</Geometry>
+        <Geometry x:Key="IconTrash">F1 M6,1 H10 V3 H14 V5 H2 V3 H6 Z M3,6 H13 V15 H3 Z</Geometry>
+        <Geometry x:Key="IconCheck">F1 M1,8 H3 V10 H5 V12 H7 V10 H9 V8 H11 V6 H13 V4 H15 V6 H13 V8 H11 V10 H9 V12 H7 V14 H5 V12 H3 V10 H1 Z</Geometry>
+        <Geometry x:Key="IconRestart">F1 M3,2 H13 V4 H15 V8 H13 V5 H3 V11 H13 V9 H15 V13 H13 V14 H3 V12 H1 V4 H3 Z</Geometry>
+
+        <sys:Double x:Key="BloomBlurRadius">15</sys:Double>
+        <sys:Double x:Key="BloomOpacity">0.6</sys:Double>
+        <sys:Double x:Key="SettingsBloomOpacity">0.36</sys:Double>
+        <sys:Double x:Key="TitleBloomBlurRadius">30</sys:Double>
+        <sys:Double x:Key="TitleBloomOpacity">0.4</sys:Double>
+
+        <Style x:Key="SystemButton" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#8FB3C9"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="SysBd" Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                                <ContentPresenter.RenderTransform>
+                                    <ScaleTransform x:Name="SysIconScale" ScaleX="1" ScaleY="1"/>
+                                </ContentPresenter.RenderTransform>
+                            </ContentPresenter>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="SysBd" Property="Background" Value="#22FFFFFF"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="SysBd" Property="Background" Value="#3AFFFFFF"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="SysIconScale" Storyboard.TargetProperty="ScaleX" To="0.75" Duration="0:0:0.07"/>
+                                            <DoubleAnimation Storyboard.TargetName="SysIconScale" Storyboard.TargetProperty="ScaleY" To="0.75" Duration="0:0:0.07"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="SysIconScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.3">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="3"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="SysIconScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.3">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="3"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CloseButton" TargetType="Button" BasedOn="{StaticResource SystemButton}">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                    <Setter Property="Background" Value="#CC3B30"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="PixelButton" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Background" Value="#050B12"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <EventSetter Event="PreviewMouseMove" Handler="Btn_MouseTrack"/>
+            <EventSetter Event="MouseLeave" Handler="Btn_MouseReset"/>
+            <EventSetter Event="Click" Handler="Btn_Pop"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <TransformGroup>
+                                    <TranslateTransform x:Name="LiftTr" X="0" Y="0"/>
+                                    <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1"/>
+                                </TransformGroup>
+                            </Grid.RenderTransform>
+
+                            <Rectangle x:Name="Shade" Fill="#7A000914" Margin="4,4,-4,-4"/>
+
+                            <Border x:Name="Bd"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    Padding="{TemplateBinding Padding}">
+                                <Border.Effect>
+                                    <DropShadowEffect x:Name="GlowEffect"
+                                                      Color="{DynamicResource AccentColor}"
+                                                      BlurRadius="12"
+                                                      ShadowDepth="0"
+                                                      Opacity="0"/>
+                                </Border.Effect>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <StackPanel.RenderTransform>
+                                        <TranslateTransform x:Name="BtnTr" X="0" Y="0"/>
+                                    </StackPanel.RenderTransform>
+                                    <Path x:Name="BtnIcon" Data="{TemplateBinding Tag}" Fill="{TemplateBinding Foreground}"
+                                          Width="13" Height="13" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,9,0"
+                                          SnapsToDevicePixels="True"/>
+                                    <ContentPresenter x:Name="BtnContent" HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Rectangle x:Name="DotFloor" Height="2" VerticalAlignment="Bottom" Margin="4,0,4,-6" Fill="{StaticResource DotRowBrush}" Opacity="0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="{x:Null}">
+                                <Setter TargetName="BtnIcon" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                            <Trigger Property="Content" Value="{x:Null}">
+                                <Setter TargetName="BtnIcon" Property="Margin" Value="0"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1B3446"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="GlowEffect" Storyboard.TargetProperty="Opacity" To="0.85" Duration="0:0:0.15"/>
+                                            <DoubleAnimation Storyboard.TargetName="DotFloor" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="X" To="-2" Duration="0:0:0.09"/>
+                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="Y" To="-2" Duration="0:0:0.09"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="GlowEffect" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="DotFloor" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.18"/>
+                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.18"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Shade" Property="Margin" Value="1,1,-1,-1"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="X" To="2" Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="Y" To="2" Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.97" Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.97" Duration="0:0:0.05"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PlayButton" TargetType="Button" BasedOn="{StaticResource PixelButton}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}"/>
+            <Setter Property="BorderBrush" Value="#B9EDFF"/>
+            <Setter Property="BorderThickness" Value="3"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="30,11"/>
+        </Style>
+
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="shell:WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
+            <EventSetter Event="Click" Handler="Btn_Pop"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="NavBd" Background="{TemplateBinding Background}" Padding="18,0">
+                            <Border.RenderTransform>
+                                <TransformGroup>
+                                    <TranslateTransform x:Name="NavTr" X="0"/>
+                                    <TranslateTransform x:Name="NavPressTr" X="0"/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
+                            <Grid>
+                                <Rectangle x:Name="NavHover" Fill="#12A8E6FF" Opacity="0" Margin="-18,0,-18,0"/>
+                                <Rectangle x:Name="NavAccent" Width="4" HorizontalAlignment="Left" Margin="-18,6,0,6" Fill="{DynamicResource AccentBrush}" Opacity="0"/>
+                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="NavHover" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                            <DoubleAnimation Storyboard.TargetName="NavAccent" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
+                                            <DoubleAnimation Storyboard.TargetName="NavTr" Storyboard.TargetProperty="X" To="6" Duration="0:0:0.18">
+                                                <DoubleAnimation.EasingFunction><QuadraticEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="NavHover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="NavAccent" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="NavTr" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="NavPressTr" Storyboard.TargetProperty="X" To="3" Duration="0:0:0.06"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="NavPressTr" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PixelProgressBar" TargetType="ProgressBar">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background" Value="#0C1A26"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Grid x:Name="ProgressRoot" ClipToBounds="True">
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2"/>
+                            <Grid Margin="2">
+                                <Rectangle x:Name="PART_Track" Fill="Transparent"/>
+                                <Rectangle x:Name="PART_Indicator" HorizontalAlignment="Left" Fill="{TemplateBinding Foreground}"
+                                           OpacityMask="{StaticResource SegmentMaskBrush}">
+                                    <Rectangle.Effect>
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="{DynamicResource BloomBlurRadius}" ShadowDepth="0" Opacity="{DynamicResource BloomOpacity}"/>
+                                    </Rectangle.Effect>
+                                </Rectangle>
+                                <Rectangle x:Name="Runner" Width="70" HorizontalAlignment="Left" Fill="{TemplateBinding Foreground}"
+                                           OpacityMask="{StaticResource SegmentMaskBrush}" Visibility="Collapsed">
+                                    <Rectangle.RenderTransform>
+                                        <TranslateTransform x:Name="RunnerTr" X="-80"/>
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
+                            </Grid>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsIndeterminate" Value="True">
+                                <Setter TargetName="PART_Indicator" Property="Visibility" Value="Collapsed"/>
+                                <Setter TargetName="Runner" Property="Visibility" Value="Visible"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard Name="RunnerBoard">
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetName="RunnerTr" Storyboard.TargetProperty="X"
+                                                             From="-80" To="900" Duration="0:0:1.6"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <StopStoryboard BeginStoryboardName="RunnerBoard"/>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="#01040A"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="TbBd" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}">
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="TbBd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TbBd" Property="BorderBrush" Value="#3E6E90"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PixelScrollBar" TargetType="ScrollBar">
+            <Setter Property="Width" Value="10"/>
+            <Setter Property="Background" Value="#0A141E"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="{TemplateBinding Background}">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Rectangle Fill="{DynamicResource AccentBrush}" Opacity="0.55" Margin="2,0"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False"/>
+                                </Track.DecreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ScrollViewer">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollViewer">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollContentPresenter Grid.Column="0" CanContentScroll="{TemplateBinding CanContentScroll}"/>
+                            <ScrollBar Grid.Column="1" x:Name="PART_VerticalScrollBar" Style="{StaticResource PixelScrollBar}"
+                                       Value="{TemplateBinding VerticalOffset}" Maximum="{TemplateBinding ScrollableHeight}"
+                                       ViewportSize="{TemplateBinding ViewportHeight}"
+                                       Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="#01040A"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
+            <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <EventSetter Event="SelectionChanged" Handler="Combo_Pop"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton x:Name="ToggleRoot" Focusable="False" ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="CbBd" Background="{DynamicResource DeepBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="30"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Rectangle Grid.Column="1" Width="10" Height="6" Fill="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <Rectangle.Clip>
+                                                        <PathGeometry Figures="M0,0 L10,0 L5,6 Z"/>
+                                                    </Rectangle.Clip>
+                                                </Rectangle>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="CbBd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <ContentPresenter Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              Margin="12,0,34,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                            <Popup x:Name="PART_Popup" AllowsTransparency="True" Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False" PopupAnimation="Fade">
+                                <Border x:Name="DropDownBorder" Background="#080F18" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2"
+                                        MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <ScrollViewer>
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBd" Background="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBd" Property="Background" Value="#1E3E55"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Border x:Name="Box" Width="18" Height="18" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2" Background="#0B1520" VerticalAlignment="Center">
+                                <Rectangle x:Name="Mark" Width="8" Height="8" Fill="{DynamicResource AccentBrush}" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                                    <Rectangle.RenderTransform>
+                                        <ScaleTransform x:Name="MarkScale" ScaleX="0.4" ScaleY="0.4"/>
+                                    </Rectangle.RenderTransform>
+                                </Rectangle>
+                            </Border>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Mark" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.22">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2.5"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.22">
+                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2.5"/></DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="Mark" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleX" To="0.4" Duration="0:0:0.12"/>
+                                            <DoubleAnimation Storyboard.TargetName="MarkScale" Storyboard.TargetProperty="ScaleY" To="0.4" Duration="0:0:0.12"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Slider">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid>
+                            <Border Height="10" VerticalAlignment="Center" Background="#0B1520" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2"/>
+                            <Track x:Name="PART_Track">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="Slider.DecreaseLarge" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="Transparent" Height="10" VerticalAlignment="Center">
+                                                    <Rectangle Fill="{DynamicResource AccentBrush}" Margin="2" OpacityMask="{StaticResource SegmentMaskBrush}"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="Slider.IncreaseLarge" Focusable="False">
+                                        <RepeatButton.Template>
+                                            <ControlTemplate TargetType="RepeatButton">
+                                                <Border Background="Transparent"/>
+                                            </ControlTemplate>
+                                        </RepeatButton.Template>
+                                    </RepeatButton>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Width="12" Height="22">
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Grid RenderTransformOrigin="0.5,0.5">
+                                                    <Grid.RenderTransform>
+                                                        <ScaleTransform x:Name="ThumbScale" ScaleX="1" ScaleY="1"/>
+                                                    </Grid.RenderTransform>
+                                                    <Rectangle Fill="{DynamicResource AccentBrush}"/>
+                                                    <Rectangle Fill="#0A1018" Width="4" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Grid>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Trigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetName="ThumbScale" Storyboard.TargetProperty="ScaleX" To="1.35" Duration="0:0:0.15"/>
+                                                                    <DoubleAnimation Storyboard.TargetName="ThumbScale" Storyboard.TargetProperty="ScaleY" To="1.15" Duration="0:0:0.15"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.EnterActions>
+                                                        <Trigger.ExitActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetName="ThumbScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.2"/>
+                                                                    <DoubleAnimation Storyboard.TargetName="ThumbScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.2"/>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </Trigger.ExitActions>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SectionHeader" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,6,0,10"/>
+        </Style>
+
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,8,0,4"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="RootGrid" Background="Transparent">
+        <Grid.RenderTransform>
+            <TranslateTransform x:Name="RootGridTransform" X="0" Y="0"/>
+        </Grid.RenderTransform>
+
+        <Grid x:Name="SceneBackground" Panel.ZIndex="-1">
+            <Image x:Name="PixelSceneImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="True"/>
+
+            <Grid x:Name="GradientBackdrop" Visibility="Collapsed" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <ScaleTransform x:Name="GradientScale" ScaleX="1" ScaleY="1"/>
+                </Grid.RenderTransform>
+                <Rectangle x:Name="GradientBase"/>
+                <Rectangle x:Name="Flow1" Opacity="0.5"/>
+                <Rectangle x:Name="Flow2" Opacity="0.4"/>
+                <Rectangle x:Name="Flow3" Opacity="0.35"/>
+                <Rectangle x:Name="Flow4" Opacity="0.3"/>
+            </Grid>
+
+            <Grid x:Name="PlainBackdrop" Visibility="Collapsed" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <ScaleTransform x:Name="PlainScale" ScaleX="1" ScaleY="1"/>
+                </Grid.RenderTransform>
+                <Rectangle x:Name="PlainBase"/>
+                <Rectangle x:Name="PlainGlow"/>
+            </Grid>
+
+            <Rectangle Fill="{StaticResource ScanlineBrush}" IsHitTestVisible="False"/>
+            <Border IsHitTestVisible="False">
+                <Border.Background>
+                    <RadialGradientBrush RadiusX="0.9" RadiusY="0.85">
+                        <GradientStop Color="#00000000" Offset="0.55"/>
+                        <GradientStop Color="#66000000" Offset="1"/>
+                    </RadialGradientBrush>
+                </Border.Background>
+            </Border>
+        </Grid>
+
+        <Grid VerticalAlignment="Top" Height="40" Background="#D9010306">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="14,0,0,0" IsHitTestVisible="False">
+                <Rectangle Width="10" Height="10" Fill="{DynamicResource AccentBrush}" Margin="0,0,10,0"/>
+                <TextBlock x:Name="TopLeftTitleText" Text="LARPLAND LAUNCHER" FontSize="12" FontWeight="Bold" Foreground="#93B6CC" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource SystemButton}" Click="BtnMinimize_Click">
+                    <Rectangle Width="12" Height="2" Fill="#8FB3C9"/>
+                </Button>
+                <Button Style="{StaticResource CloseButton}" Click="BtnClose_Click">
+                    <Path Data="M0,0 H2 V2 H4 V4 H6 V2 H8 V0 H10 V2 H8 V4 H6 V6 H8 V8 H10 V10 H8 V8 H6 V6 H4 V8 H2 V10 H0 V8 H2 V6 H4 V4 H2 V2 H0 Z"
+                          Fill="#A8C6D8" Width="11" Height="11" Stretch="Uniform" SnapsToDevicePixels="True"/>
+                </Button>
+            </StackPanel>
+            <Rectangle Height="2" VerticalAlignment="Bottom" Fill="{StaticResource DotRowBrush}" Opacity="0.7"/>
+        </Grid>
+
+        <StackPanel x:Name="LoginPanel" VerticalAlignment="Center" HorizontalAlignment="Center" Width="340">
+            <TextBlock Text="LARPLAND" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,4">
+                <TextBlock.Effect>
+                    <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="{DynamicResource TitleBloomBlurRadius}" ShadowDepth="0" Opacity="{DynamicResource TitleBloomOpacity}"/>
+                </TextBlock.Effect>
+            </TextBlock>
+            <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,0,0,22"/>
+
+            <TextBlock x:Name="LoginMsLabel" Text="Лицензия (Microsoft):" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,6"/>
+            <Button x:Name="LoginMsBtn" Content="Войти через Microsoft" Height="44" Click="BtnLoginMicrosoft_Click" Style="{StaticResource PixelButton}"/>
+
+            <TextBlock x:Name="LoginNickLabel" Text="ИЛИ Пиратка (Никнейм):" Foreground="{DynamicResource MutedBrush}" Margin="0,24,0,6"/>
+            <TextBox x:Name="UsernameBox" MaxLength="16"/>
+            <Button x:Name="LoginOfflineBtn" Content="Войти оффлайн" Margin="0,16,0,0" Height="44" Click="BtnLoginOffline_Click" Style="{StaticResource PixelButton}"/>
+        </StackPanel>
+
+        <StackPanel x:Name="SetupPanel" Visibility="Hidden" VerticalAlignment="Center" HorizontalAlignment="Center" Width="400">
+            <TextBlock Text="LARPLAND" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+            <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,0,0,18"/>
+
+            <TextBlock Text="Язык / Language:" Foreground="{DynamicResource MutedBrush}" Margin="0,0,0,5"/>
+            <ComboBox x:Name="SetupLangCombo" SelectionChanged="LangCombo_Changed">
+                <ComboBoxItem Content="Русский" Tag="ru"/>
+                <ComboBoxItem Content="English" Tag="en"/>
+            </ComboBox>
+
+            <TextBlock x:Name="SetupMsLabel" Text="Лицензия (Microsoft):" Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,5"/>
+            <Button x:Name="SetupMsBtn" Content="Войти через Microsoft" Height="40" Click="BtnSetupMicrosoft_Click" Style="{StaticResource PixelButton}"/>
+
+            <TextBlock x:Name="SetupNickLabel" Text="ИЛИ Пиратка (Никнейм):" Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,5"/>
+            <TextBox x:Name="SetupUsernameBox" MaxLength="16"/>
+
+            <TextBlock x:Name="SetupFolderLabel" Text="Папка для Minecraft:" Foreground="{DynamicResource MutedBrush}" Margin="0,16,0,5"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="SetupPathBox" Grid.Column="0" IsReadOnly="True"/>
+                <Button Tag="{StaticResource IconFolder}" Click="BtnSetupSelectFolder_Click" Grid.Column="1" Width="40" Height="36" Margin="8,0,0,0" Padding="0" Style="{StaticResource PixelButton}"/>
+            </Grid>
+            <Button x:Name="SetupStartBtn" Content="НАЧАТЬ" Margin="0,26,0,0" Height="46" Click="BtnSetupComplete_Click" Style="{StaticResource PlayButton}"/>
+        </StackPanel>
+
+        <Grid x:Name="MainPanel" Visibility="Hidden">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="210"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border x:Name="SideBar" Grid.Column="0" Background="#B2010306" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,2,0" Margin="0,40,0,0">
+                <Border.RenderTransform>
+                    <TranslateTransform x:Name="SideBarTransform" X="0"/>
+                </Border.RenderTransform>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="18,22,18,0">
+                        <TextBlock Text="LARPLAND" FontSize="17" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="{DynamicResource TitleBloomBlurRadius}" ShadowDepth="0" Opacity="{DynamicResource TitleBloomOpacity}"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <TextBlock x:Name="SideVersionText" Text="—" FontSize="10" Foreground="{DynamicResource MutedBrush}" Margin="0,3,0,0"/>
+                        <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,14,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="TopButtons" Grid.Row="1" Margin="0,18,0,0">
+                        <TextBlock Text="MENU" Foreground="#4C6E88" FontSize="10" FontWeight="Bold" Margin="18,0,0,8"/>
+
+                        <Button x:Name="BtnReinstall" Click="BtnReinstall_Click" Style="{StaticResource NavButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconDownload}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
+                                <TextBlock x:Name="BtnReinstallText" Text="Перекачать сборку" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="BtnSettingsOpen" Click="BtnSettings_Click" Style="{StaticResource NavButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconGear}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
+                                <TextBlock x:Name="BtnSettingsText" Text="Настройки" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button x:Name="BtnChecksOpen" Click="BtnChecks_Click" Style="{StaticResource NavButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path x:Name="BtnChecksIcon" Data="{StaticResource IconDoc}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
+                                <TextBlock x:Name="BtnChecksText" Text="Проверка системы" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Margin="0,0,0,18">
+                        <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="18,0,18,10"/>
+                        <Button x:Name="BtnGitHub" Click="BtnGitHub_Click" Style="{StaticResource NavButton}">
+                            <StackPanel Orientation="Horizontal">
+                                <Path Data="{StaticResource IconFork}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
+                                <TextBlock Text="GitHub" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid x:Name="PlayContentPanel" Grid.Column="1" Margin="22,52,22,22">
+                <Rectangle Fill="#66000914" Margin="6,6,-6,-6"/>
+
+                <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2">
+                    <Border.Effect>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="{DynamicResource BloomBlurRadius}" ShadowDepth="0" Opacity="{DynamicResource BloomOpacity}"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="#CC01040A" Padding="12,7" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,2">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                    <Rectangle Width="8" Height="8" Fill="{DynamicResource AccentBrush}" Margin="0,0,5,0"/>
+                                    <Rectangle Width="8" Height="8" Fill="{DynamicResource AccentBrush}" Opacity="0.55" Margin="0,0,5,0"/>
+                                    <Rectangle Width="8" Height="8" Fill="{DynamicResource AccentBrush}" Opacity="0.25"/>
+                                </StackPanel>
+                                <TextBlock Text="larp@larpland: ~/play" FontSize="12" Foreground="#6F93AA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="280"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid Grid.Column="0" Margin="22,18,12,18">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0">
+                                    <TextBlock FontSize="15" Margin="0,0,0,6">
+                                        <Run x:Name="PlayerNameRun" Text="player" Foreground="{DynamicResource AccentBrush}" FontWeight="Bold"/><Run Text="@larpland" Foreground="#5E8096"/>
+                                    </TextBlock>
+                                    <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,0,0,10"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="104"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="21"/>
+                                            <RowDefinition Height="21"/>
+                                            <RowDefinition Height="21"/>
+                                            <RowDefinition Height="21"/>
+                                            <RowDefinition Height="21"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="OS" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock x:Name="OsText" Grid.Row="0" Grid.Column="1" Text="Windows" FontSize="13" Foreground="{DynamicResource TextBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="LAUNCHER" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock x:Name="VersionText" Grid.Row="1" Grid.Column="1" Text="—" FontSize="13" Foreground="{DynamicResource TextBrush}"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="MINECRAFT" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock x:Name="GameVersionText" Grid.Row="2" Grid.Column="1" FontSize="13" Foreground="{DynamicResource TextBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="MODPACK" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock x:Name="ModpackVerText" Grid.Row="3" Grid.Column="1" Text="—" FontSize="13" Foreground="{DynamicResource TextBrush}"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="MEMORY" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock x:Name="MemoryText" Grid.Row="4" Grid.Column="1" Text="—" FontSize="13" Foreground="{DynamicResource TextBrush}"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" VerticalAlignment="Bottom" Margin="0,14,0,0">
+                                    <Border Background="#000000" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2" Padding="10,8">
+                                        <ScrollViewer x:Name="LogScroll" Height="72" VerticalScrollBarVisibility="Hidden" CanContentScroll="False">
+                                            <TextBlock x:Name="LogTerminalText" Text="[SYS] Готов к запуску." Foreground="#9FBDCF" FontSize="12" TextAlignment="Left" TextWrapping="Wrap"/>
+                                        </ScrollViewer>
+                                    </Border>
+                                    <ProgressBar x:Name="GameProgressBar" Height="14" Margin="0,10,0,0" Value="0" Style="{StaticResource PixelProgressBar}"/>
+                                    <Border x:Name="LoaderWarningPanel" Visibility="Collapsed" Margin="0,10,0,0" Padding="10,7" Background="#2257C7F2" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Rectangle Width="10" Height="10" Fill="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <TextBlock x:Name="LoaderWarnText" Text="Установка библиотек NeoForge. Этот этап займёт от 1 до 5 минут." FontSize="12" Foreground="{DynamicResource TextBrush}" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Margin="0,16,0,0">
+                                    <CheckBox x:Name="DebugCheck" Content="--debug" Foreground="#6F93AA" Margin="0,0,0,12" Checked="DebugCheck_Changed" Unchecked="DebugCheck_Changed"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="larp" FontSize="14" FontWeight="Bold" Foreground="#5CD69B" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="&gt;" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                        <Button x:Name="BtnPlay" Content="ИГРАТЬ" Tag="{StaticResource IconPlay}" Click="BtnPlay_Click" Style="{StaticResource PlayButton}"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Grid>
+
+                            <Border Grid.Column="1" Margin="0,18,18,18" Background="#000000" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2" ClipToBounds="True">
+                                <Image x:Name="BlobImage" Stretch="Fill" RenderOptions.BitmapScalingMode="NearestNeighbor" SnapsToDevicePixels="True"/>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="ChecksPanel" Background="#E0000204" Visibility="Hidden">
+            <Border Background="Transparent" MouseDown="BtnCloseChecks_Click"/>
+            <Grid Width="680" MaxHeight="640" VerticalAlignment="Center" Margin="0,20,0,20">
+                <Rectangle Fill="#8C000610" Margin="6,6,-6,-6"/>
+                <Border x:Name="ChecksBox" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2"
+                        RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="ChecksScale" ScaleX="1" ScaleY="1"/>
+                            <TranslateTransform x:Name="ChecksTranslate" Y="0"/>
+                        </TransformGroup>
+                    </Border.RenderTransform>
+                    <Border.Effect>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="20" ShadowDepth="0" Opacity="{DynamicResource SettingsBloomOpacity}"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="#CC01040A" Padding="12,7" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,2">
+                            <Grid>
+                                <TextBlock Text="larp@larpland: ~/check" FontSize="12" Foreground="#6F93AA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Button HorizontalAlignment="Right" VerticalAlignment="Center" Width="26" Height="20" Padding="0"
+                                        Style="{StaticResource PixelButton}" Click="BtnCloseChecks_Click" Content="X" FontSize="11"/>
+                            </Grid>
+                        </Border>
+
+                        <ScrollViewer Grid.Row="1" x:Name="ChecksScrollViewer" VerticalScrollBarVisibility="Auto" Margin="0,10,0,10" PreviewMouseWheel="SmoothWheel_Preview">
+                            <StackPanel Margin="25,15,25,25">
+                                <TextBlock x:Name="ChecksTitle" FontSize="19" FontWeight="Bold" Margin="0,0,0,8">
+                                    <Run Text="larp" Foreground="#5CD69B"/><Run Text=" &gt; " Foreground="{DynamicResource AccentBrush}"/><Run x:Name="ChecksTitleRun" Text="проверка системы" Foreground="{DynamicResource TextBrush}"/>
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform x:Name="ChecksTitleTranslate" Y="0"/>
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="{DynamicResource TitleBloomBlurRadius}" ShadowDepth="0" Opacity="{DynamicResource TitleBloomOpacity}"/>
+                                    </TextBlock.Effect>
+                                </TextBlock>
+
+                                <TextBlock x:Name="ChecksSummary" Foreground="{DynamicResource MutedBrush}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/>
+
+                                <ItemsControl x:Name="ChecksList">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#14213241" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2" Padding="12,10" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Text="{Binding Badge}" Foreground="{Binding BadgeBrush}" FontSize="12" FontWeight="Bold" VerticalAlignment="Top" Margin="0,1,12,0"/>
+
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Title}" Foreground="{DynamicResource TextBrush}" FontSize="13" FontWeight="Bold" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{Binding Detail}" Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                                    </StackPanel>
+
+                                                    <Button Grid.Column="2" Content="{Binding ActionLabel}" Click="CheckAction_Click" Style="{StaticResource PixelButton}"
+                                                            MinWidth="110" Margin="12,0,0,0" VerticalAlignment="Center" Visibility="{Binding ActionVisibility}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
+                                    <Button x:Name="BtnRecheck" Click="BtnRecheck_Click" Style="{StaticResource PixelButton}" Margin="0,0,12,0">
+                                        <TextBlock x:Name="BtnRecheckText" Text="Проверить снова"/>
+                                    </Button>
+                                    <Button x:Name="BtnOpenLauncherLog" Click="BtnOpenLauncherLog_Click" Style="{StaticResource PixelButton}" Margin="0,0,12,0">
+                                        <TextBlock x:Name="BtnOpenLogText" Text="Открыть лог"/>
+                                    </Button>
+                                    <Button x:Name="BtnCloseChecks" Click="BtnCloseChecks_Click" Style="{StaticResource PixelButton}">
+                                        <TextBlock x:Name="BtnCloseChecksText" Text="Закрыть"/>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="SettingsPanel" Background="#E0000204" Visibility="Hidden">
+            <Border Background="Transparent" MouseDown="BtnCloseSettings_Click"/>
+            <Grid Width="520" MaxHeight="650" VerticalAlignment="Center" Margin="0,20,0,20">
+                <Rectangle Fill="#8C000610" Margin="6,6,-6,-6"/>
+                <Border x:Name="SettingsBox" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="2"
+                        RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="SettingsScale" ScaleX="1" ScaleY="1"/>
+                            <TranslateTransform x:Name="SettingsTranslate" Y="0"/>
+                        </TransformGroup>
+                    </Border.RenderTransform>
+                    <Border.Effect>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="20" ShadowDepth="0" Opacity="{DynamicResource SettingsBloomOpacity}"/>
+                    </Border.Effect>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="#CC01040A" Padding="12,7" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,2">
+                            <Grid>
+                                <TextBlock Text="larp@larpland: ~/settings" FontSize="12" Foreground="#6F93AA" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <Button x:Name="SettingsCloseDot" HorizontalAlignment="Right" VerticalAlignment="Center" Width="26" Height="20" Padding="0"
+                                        Style="{StaticResource PixelButton}" Click="BtnCloseSettings_Click" Content="X" FontSize="11"/>
+                            </Grid>
+                        </Border>
+
+                        <ScrollViewer Grid.Row="1" x:Name="SettingsScrollViewer" VerticalScrollBarVisibility="Auto" Margin="0,10,0,10"
+                                      PreviewMouseWheel="SettingsScroll_PreviewMouseWheel" ScrollChanged="SettingsScroll_ScrollChanged">
+                            <StackPanel Margin="25,15,25,25">
+                                <TextBlock x:Name="SettingsTitle" FontSize="19" FontWeight="Bold" Margin="0,0,0,16">
+                                    <Run Text="larp" Foreground="#5CD69B"/><Run Text=" &gt; " Foreground="{DynamicResource AccentBrush}"/><Run x:Name="SettingsTitleRun" Text="настройки" Foreground="{DynamicResource TextBrush}"/>
+                                    <TextBlock.RenderTransform>
+                                        <TranslateTransform x:Name="SettingsTitleTranslate" Y="0"/>
+                                    </TextBlock.RenderTransform>
+                                    <TextBlock.Effect>
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="{DynamicResource TitleBloomBlurRadius}" ShadowDepth="0" Opacity="{DynamicResource TitleBloomOpacity}"/>
+                                    </TextBlock.Effect>
+                                </TextBlock>
+
+                                <TextBlock Style="{StaticResource SectionHeader}">
+                                    <Run Text="# " Foreground="#4C6E88"/><Run x:Name="AppearanceHeaderRun" Text="ВНЕШНИЙ ВИД"/>
+                                </TextBlock>
+
+                                <TextBlock x:Name="PresetsLabel" Text="Готовые пресеты:" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="ColorPresetCombo" SelectionChanged="ColorPreset_Changed" Height="38" MaxDropDownHeight="420">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Border Width="14" Height="14" Background="{Binding PrimarySwatch}" BorderBrush="#55FFFFFF" BorderThickness="1" VerticalAlignment="Center"/>
+                                                <Border Width="14" Height="14" Background="{Binding AccentSwatch}" BorderBrush="#55FFFFFF" BorderThickness="1" VerticalAlignment="Center" Margin="4,0,9,0"/>
+                                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <Grid Margin="0,10,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="PresetNameBox" Grid.Column="0" MaxLength="24"/>
+                                    <Button x:Name="BtnSavePreset" Grid.Column="1" Content="Сохранить" Tag="{StaticResource IconPlus}" Click="BtnSavePreset_Click" Margin="8,0,0,0" Style="{StaticResource PixelButton}"/>
+                                    <Button x:Name="BtnDeletePreset" Grid.Column="2" Content="Удалить" Tag="{StaticResource IconTrash}" Click="BtnDeletePreset_Click" Margin="8,0,0,0" Style="{StaticResource PixelButton}"/>
+                                </Grid>
+                                <TextBlock x:Name="PresetHintLabel" Text="Свой пресет запоминает текущие цвета под именем." Foreground="{DynamicResource MutedBrush}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
+
+                                <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,16,0,14"/>
+
+                                <TextBlock x:Name="ManualColorsLabel" Text="Ручная настройка цветов:" Style="{StaticResource SectionHeader}"/>
+
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Margin="0,0,6,0">
+                                        <TextBlock x:Name="PrimaryHexLabel" Text="Основной (HEX):" Style="{StaticResource FieldLabel}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox x:Name="PrimaryColorBox" Width="104" Margin="0,0,6,0"/>
+                                            <Button Content="OK" Click="BtnApplyPrimaryColor_Click" Width="44" Style="{StaticResource PixelButton}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Margin="6,0,0,0">
+                                        <TextBlock x:Name="AccentHexLabel" Text="Акцент (HEX):" Style="{StaticResource FieldLabel}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBox x:Name="AccentColorBox" Width="104" Margin="0,0,6,0"/>
+                                            <Button Content="OK" Click="BtnApplyAccentColor_Click" Width="44" Style="{StaticResource PixelButton}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <CheckBox x:Name="BloomEnabledCheck" Content="Включить свечение" IsChecked="True" Checked="BloomEnabledCheck_Changed" Unchecked="BloomEnabledCheck_Changed" Margin="0,6,0,6"/>
+
+                                <TextBlock x:Name="BloomStrengthLabel" Text="Сила свечения:" Style="{StaticResource FieldLabel}"/>
+                                <Slider x:Name="BloomStrengthSlider" Minimum="0" Maximum="100" Value="60" ValueChanged="BloomStrengthSlider_ValueChanged"/>
+
+                                <TextBlock x:Name="ConsoleOpacityLabel" Text="Прозрачность терминала:" Style="{StaticResource FieldLabel}"/>
+                                <Slider x:Name="ConsoleOpacitySlider" Minimum="5" Maximum="100" Value="100" ValueChanged="ConsoleOpacitySlider_ValueChanged"/>
+
+                                <TextBlock x:Name="BgLabel" Text="Фон:" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="BackgroundCombo" SelectionChanged="BackgroundCombo_Changed">
+                                    <ComboBoxItem x:Name="BgItemAnimated" Content="Пиксельная глубина" Tag="animated"/>
+                                    <ComboBoxItem x:Name="BgItemGradient" Content="Переливы темы" Tag="gradient"/>
+                                    <ComboBoxItem x:Name="BgItemPlain" Content="Минимализм" Tag="plain"/>
+                                </ComboBox>
+
+                                <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,16,0,14"/>
+
+                                <TextBlock Style="{StaticResource SectionHeader}">
+                                    <Run Text="# " Foreground="#4C6E88"/><Run x:Name="SystemHeaderRun" Text="СИСТЕМА"/>
+                                </TextBlock>
+
+                                <TextBlock x:Name="LangLabel" Text="Язык:" Style="{StaticResource FieldLabel}"/>
+                                <ComboBox x:Name="SettingsLangCombo" SelectionChanged="LangCombo_Changed" Margin="0,0,0,10">
+                                    <ComboBoxItem Content="Русский" Tag="ru"/>
+                                    <ComboBoxItem Content="English" Tag="en"/>
+                                </ComboBox>
+
+                                <TextBlock x:Name="RamLabel" Text="Выделенная память (RAM МБ):" Style="{StaticResource FieldLabel}"/>
+                                <Grid Margin="0,0,0,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="70"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Slider x:Name="RamSlider" Minimum="2048" Maximum="8192" Value="4096" VerticalAlignment="Center" Margin="0,0,12,0"
+                                            LargeChange="1024" SmallChange="512" ValueChanged="RamSlider_ValueChanged"/>
+                                    <TextBox x:Name="RamBox" Text="{Binding Value, ElementName=RamSlider, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, StringFormat={}{0:0}}"
+                                             Grid.Column="1" TextAlignment="Center" IsReadOnly="True" Focusable="False" Cursor="Arrow"/>
+                                </Grid>
+
+                                <TextBlock x:Name="GamePathLabel" Text="Путь к игре:" Style="{StaticResource FieldLabel}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox x:Name="PathBox" Grid.Column="0" IsReadOnly="True"/>
+                                    <Button Tag="{StaticResource IconFolder}" Click="BtnSelectFolder_Click" Grid.Column="1" Width="44" Height="36" Margin="8,0,0,0" Padding="0" Style="{StaticResource PixelButton}"/>
+                                </Grid>
+
+                                <Button x:Name="BtnResetAll" Content="СБРОСИТЬ ВСЕ НАСТРОЙКИ" Tag="{StaticResource IconRestart}" Click="BtnResetAllSettings_Click"
+                                        Margin="0,22,0,0" Background="#33301418" BorderBrush="{DynamicResource DangerBrush}" Foreground="{DynamicResource DangerBrush}" Style="{StaticResource PixelButton}"/>
+
+                                <Button x:Name="BtnSaveClose" Content="СОХРАНИТЬ И ЗАКРЫТЬ" Tag="{StaticResource IconCheck}" Click="BtnSaveSettings_Click"
+                                        Margin="0,12,0,0" Height="44" Style="{StaticResource PixelButton}" BorderBrush="{DynamicResource OkBrush}" Foreground="{DynamicResource OkBrush}"/>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="CustomDialogOverlay" Visibility="Hidden" Background="#C4000204">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="360" MaxWidth="520">
+                <Rectangle Fill="#8C000610" Margin="6,6,-6,-6"/>
+                <Border x:Name="CustomDialogBox" Background="{DynamicResource PrimaryBrush}" BorderThickness="2" BorderBrush="{DynamicResource AccentBrush}"
+                        Padding="24" RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="CustomDialogScale" ScaleX="0.9" ScaleY="0.9"/>
+                            <TranslateTransform x:Name="CustomDialogTranslate" Y="20"/>
+                        </TransformGroup>
+                    </Border.RenderTransform>
+                    <Border.Effect>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="25" ShadowDepth="0" Opacity="0.4"/>
+                    </Border.Effect>
+                    <StackPanel>
+                        <TextBlock x:Name="CustomDialogTitle" Text="TITLE" FontSize="17" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,6"/>
+                        <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="0,0,0,12"/>
+                        <TextBlock x:Name="CustomDialogMessage" Text="Message" FontSize="13" Foreground="{DynamicResource TextBrush}" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                        <TextBox x:Name="CustomDialogInputBox" Visibility="Collapsed" Margin="0,0,0,16"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" x:Name="CustomDialogButtons">
+                            <Button x:Name="CustomDialogBtnCancel" Content="Отмена" Width="110" Margin="0,0,12,0" Style="{StaticResource PixelButton}" Click="CustomDialogCancel_Click"/>
+                            <Button x:Name="CustomDialogBtnOk" Content="OK" Width="110" Style="{StaticResource PixelButton}" Click="CustomDialogOk_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="UpdateOverlay" Visibility="Hidden" Background="#EE000204">
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="380">
+                <Rectangle Fill="#8C000610" Margin="6,6,-6,-6"/>
+                <Border Background="{DynamicResource PrimaryBrush}" BorderThickness="2" BorderBrush="{DynamicResource AccentBrush}" Padding="32" RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform x:Name="UpdateCardScale" ScaleX="0.92" ScaleY="0.92"/>
+                            <TranslateTransform x:Name="UpdateCardTranslate" Y="24"/>
+                        </TransformGroup>
+                    </Border.RenderTransform>
+                    <Border.Effect>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="35" ShadowDepth="0" Opacity="0.45"/>
+                    </Border.Effect>
+                    <StackPanel HorizontalAlignment="Center">
+                        <Grid Width="92" Height="92" Margin="0,0,0,22">
+                            <Rectangle Width="92" Height="92" Stroke="{DynamicResource LineBrush}" StrokeThickness="4"/>
+                            <Rectangle x:Name="UpdateSpinnerArc" Width="92" Height="92" Stroke="{DynamicResource AccentBrush}" StrokeThickness="4"
+                                       StrokeDashArray="2 2" RenderTransformOrigin="0.5,0.5">
+                                <Rectangle.RenderTransform>
+                                    <RotateTransform x:Name="UpdateSpinnerRotate" Angle="0"/>
+                                </Rectangle.RenderTransform>
+                                <Rectangle.Effect>
+                                    <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="14" ShadowDepth="0" Opacity="0.7"/>
+                                </Rectangle.Effect>
+                            </Rectangle>
+                            <TextBlock x:Name="UpdatePercentText" Text="0%" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <TextBlock x:Name="UpdateTitleText" Text="Обновление лаунчера" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                        <TextBlock x:Name="UpdateSubText" Text="Скачивание новой версии…" FontSize="12" Foreground="{DynamicResource MutedBrush}" HorizontalAlignment="Center" Margin="0,0,0,18"/>
+                        <ProgressBar x:Name="UpdateProgressBar" Width="280" Height="14" Value="0" Style="{StaticResource PixelProgressBar}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Grid x:Name="BootOverlay" Panel.ZIndex="100" Background="#000205">
+            <Ellipse Width="950" Height="950" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="-320,40,0,0" IsHitTestVisible="False">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop x:Name="BootGlowStop1" Color="#3357C7F2" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="0.72"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+            <Ellipse Width="1100" Height="1100" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-380,-340,0" IsHitTestVisible="False">
+                <Ellipse.Fill>
+                    <RadialGradientBrush>
+                        <GradientStop x:Name="BootGlowStop2" Color="#2A57C7F2" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="0.72"/>
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <Rectangle Fill="{StaticResource DotGridBrush}" Opacity="0.9" IsHitTestVisible="False"/>
+            <Rectangle Fill="{StaticResource ScanlineBrush}" IsHitTestVisible="False"/>
+
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="540">
+                <Canvas x:Name="BootPixelCanvas" Width="180" Height="180" HorizontalAlignment="Center" Margin="0,0,0,18"/>
+
+                <TextBlock x:Name="BootTitle" Text="LARPLAND" FontSize="30" FontWeight="Bold"
+                           Foreground="{DynamicResource TextBrush}" HorizontalAlignment="Center" Opacity="0" RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <TranslateTransform x:Name="BootTitleTr" Y="12"/>
+                    </TextBlock.RenderTransform>
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="28" ShadowDepth="0" Opacity="0.55"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock x:Name="BootSubtitle" Text="P I X E L   L A U N C H E R" FontSize="12"
+                           Foreground="#6F93AA" HorizontalAlignment="Center" Margin="0,4,0,0" Opacity="0"/>
+
+                <Border Background="#000000" BorderBrush="{DynamicResource LineBrush}" BorderThickness="2" Margin="0,20,0,0" Padding="16,12" Height="138">
+                    <TextBlock x:Name="BootLogText" FontSize="12" TextWrapping="NoWrap"
+                               VerticalAlignment="Top" Foreground="{DynamicResource TextBrush}" LineHeight="18" LineStackingStrategy="BlockLineHeight"/>
+                </Border>
+
+                <Grid Margin="0,16,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ProgressBar x:Name="BootProgress" Grid.Column="0" Height="14" Value="0" Style="{StaticResource PixelProgressBar}" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="BootPercent" Grid.Column="1" Text="0%" FontSize="11"
+                               Foreground="#6F93AA" Margin="12,0,0,0" VerticalAlignment="Center" Width="34" TextAlignment="Right"/>
+                </Grid>
+            </StackPanel>
+
+            <TextBlock x:Name="BootFooterText" Text="larpland" FontSize="11" Foreground="#3E5D73"
+                       HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,24" IsHitTestVisible="False"/>
+        </Grid>
+
+        <Canvas x:Name="FxCanvas" Panel.ZIndex="99" IsHitTestVisible="False" ClipToBounds="False"/>
+    </Grid>
+</Window>
