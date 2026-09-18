@@ -841,21 +841,21 @@
                     <StackPanel x:Name="TopButtons" Grid.Row="1" Margin="0,18,0,0">
                         <TextBlock Text="MENU" Foreground="#4C6E88" FontSize="10" FontWeight="Bold" Margin="18,0,0,8"/>
 
-                        <Button x:Name="BtnReinstall" Click="BtnReinstall_Click" Style="{StaticResource NavButton}">
+                        <Button x:Name="BtnReinstall" Click="BtnReinstall_Click" Style="{StaticResource NavButton}" AutomationProperties.Name="Перекачать сборку">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource IconDownload}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
                                 <TextBlock x:Name="BtnReinstallText" Text="Перекачать сборку" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button x:Name="BtnSettingsOpen" Click="BtnSettings_Click" Style="{StaticResource NavButton}">
+                        <Button x:Name="BtnSettingsOpen" Click="BtnSettings_Click" Style="{StaticResource NavButton}" AutomationProperties.Name="Настройки">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource IconGear}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
                                 <TextBlock x:Name="BtnSettingsText" Text="Настройки" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
-                        <Button x:Name="BtnChecksOpen" Click="BtnChecks_Click" Style="{StaticResource NavButton}">
+                        <Button x:Name="BtnChecksOpen" Click="BtnChecks_Click" Style="{StaticResource NavButton}" AutomationProperties.Name="Проверка системы">
                             <StackPanel Orientation="Horizontal">
                                 <Path x:Name="BtnChecksIcon" Data="{StaticResource IconDoc}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
                                 <TextBlock x:Name="BtnChecksText" Text="Проверка системы" VerticalAlignment="Center"/>
@@ -865,7 +865,7 @@
 
                     <StackPanel Grid.Row="2" Margin="0,0,0,18">
                         <Rectangle Height="2" Fill="{StaticResource DotRowBrush}" Margin="18,0,18,10"/>
-                        <Button x:Name="BtnGitHub" Click="BtnGitHub_Click" Style="{StaticResource NavButton}">
+                        <Button x:Name="BtnGitHub" Click="BtnGitHub_Click" Style="{StaticResource NavButton}" AutomationProperties.Name="GitHub">
                             <StackPanel Orientation="Horizontal">
                                 <Path Data="{StaticResource IconFork}" Fill="{DynamicResource AccentBrush}" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,12,0" SnapsToDevicePixels="True"/>
                                 <TextBlock Text="GitHub" VerticalAlignment="Center"/>

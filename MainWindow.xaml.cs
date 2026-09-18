@@ -2059,7 +2059,7 @@ namespace LarpLand
             return true;
         }
 
-        // WHY: Forge открывает каждый jar через SecureJar, и первый же обрезанный файл роняет
+        // WHY: NeoForge открывает каждый jar через SecureJar, и первый же обрезанный файл роняет
         // WHY: запуск за секунду - лечится только повторной закачкой со сверкой контрольных сумм
         private static readonly string[] BrokenJarMarkers =
         {
@@ -2289,7 +2289,7 @@ namespace LarpLand
                 await KeepDownloading(() => _launcher.InstallAsync(MC).AsTask());
                 EnsureProfiles();
 
-                StatusText.Text = Lang.T("Загрузка установщика Forge...");
+                StatusText.Text = Lang.T("Загрузка установщика NeoForge...");
                 string jar = Path.Combine(Path.GetTempPath(), "forge_installer.jar");
                 if (File.Exists(jar)) File.Delete(jar);
                 var forgeDl = new FileDownloader();
@@ -2297,7 +2297,7 @@ namespace LarpLand
                 forgeDl.ProgressChanged += p => Dispatcher.BeginInvoke(() => { GameProgressBar.IsIndeterminate = false; SetProgress(p); });
                 await forgeDl.DownloadFileAsync(LOADER_JAR_URL, jar);
 
-                StatusText.Text = Lang.T("Установка библиотек Forge...");
+                StatusText.Text = Lang.T("Установка библиотек NeoForge...");
                 Log(Lang.T("Этот этап займёт от 1 до 5 минут, не закрывайте лаунчер."));
                 ShowLoaderWarning(true);
                 await RunLoaderInstaller(jar);
@@ -2306,7 +2306,7 @@ namespace LarpLand
                 await _launcher.GetAllVersionsAsync();
                 try { File.Delete(jar); } catch { }
                 CleanInstallerLog();
-                Log(Lang.T("Forge установлен."));
+                Log(Lang.T("NeoForge установлен."));
             }
             finally { ShowLoaderWarning(false); GameProgressBar.IsIndeterminate = false; }
         }
@@ -2343,7 +2343,7 @@ namespace LarpLand
             finally { StopCreepProgress(creep); SetProgress(100); }
 
             if (proc.ExitCode != 0)
-                throw new Exception(Lang.F("Установщик Forge завершился с кодом {0}", proc.ExitCode));
+                throw new Exception(Lang.F("Установщик NeoForge завершился с кодом {0}", proc.ExitCode));
         }
 
         private System.Windows.Threading.DispatcherTimer StartCreepProgress(double to, double seconds)
