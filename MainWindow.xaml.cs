@@ -56,7 +56,7 @@ namespace LarpLand
 
         private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
 
-        private const string VER = "2026.09.19hotfix";
+        private const string VER = "2026.09.19v3";
         private static string VerDisplay => ReleaseVersion.Display(VER);
         private const string MC = GameVersions.Minecraft;
         private const string LOADER = GameVersions.NeoForge;

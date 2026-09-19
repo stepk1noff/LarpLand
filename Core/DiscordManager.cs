@@ -98,6 +98,7 @@ namespace LarpLand.Core
                     },
                     Buttons = new[]
                     {
+                        new Button { Label = "Скачать лаунчер", Url = Endpoints.LauncherExeUrl },
                         new Button { Label = "GitHub", Url = Endpoints.ProjectUrl }
                     }
                 });

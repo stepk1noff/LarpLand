@@ -13,7 +13,7 @@
     <ApplicationIcon>app_icon.ico</ApplicationIcon>
     <AssemblyName>LarpLand</AssemblyName>
     <RootNamespace>LarpLand</RootNamespace>
-    <Version>2026.9.19.2</Version>
+    <Version>2026.9.19.3</Version>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
