@@ -36,6 +36,7 @@ namespace LarpLand
         private double _scrollTarget = -1;
         private bool _scrolling;
 
+        private readonly DiscordManager _discord = new();
         private System.Windows.Threading.DispatcherTimer? _sysMonTimer;
         private System.Collections.Generic.List<string> _logLines = new();
         private long _lastProgressTick;
@@ -55,7 +56,7 @@ namespace LarpLand
 
         private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
 
-        private const string VER = "2026.09.18";
+        private const string VER = "2026.09.19";
         private static string VerDisplay => ReleaseVersion.Display(VER);
         private const string MC = GameVersions.Minecraft;
         private const string LOADER = GameVersions.NeoForge;
@@ -201,6 +202,7 @@ namespace LarpLand
         {
             _sceneAlive = false;
             try { _sceneGate.Set(); } catch { }
+            _discord.Dispose();
             base.OnClosed(e);
         }
 
@@ -227,10 +229,8 @@ namespace LarpLand
         private int _frame;
 
         private readonly Random _sceneRng = new();
-        private static readonly double[] RidgeSpeed = { 0.035, 0.085, 0.17 };
-        private static readonly double[] RidgeShade = { 0.34, 0.22, 0.12 };
+        private static readonly double[] RidgeShade = { 0.36, 0.18, 0.06 };
         private readonly int[,] _ridge = new int[RidgeCount, SCN_W];
-        private readonly double[] _ridgeShift = new double[RidgeCount];
 
         private readonly int[] _starX = new int[StarCount];
         private readonly int[] _starY = new int[StarCount];
@@ -373,18 +373,6 @@ namespace LarpLand
             _frame++;
             _wave += 0.06;
             _moonGlow = 0.5 + 0.5 * Math.Sin(_frame * 0.012);
-
-            for (int layer = 0; layer < RidgeCount; layer++)
-            {
-                _ridgeShift[layer] += RidgeSpeed[layer];
-                if (_ridgeShift[layer] >= SCN_W) _ridgeShift[layer] -= SCN_W;
-            }
-
-            for (int i = 0; i < _cloudX.Length; i++)
-            {
-                _cloudX[i] += 0.06 + i * 0.015;
-                if (_cloudX[i] > SCN_W + _cloudW[i]) _cloudX[i] = -_cloudW[i];
-            }
 
             StepMeteor();
 
@@ -563,18 +551,15 @@ namespace LarpLand
                 byte r = (byte)(accent.R * shade * 0.30 + 2);
                 byte g = (byte)(accent.G * shade * 0.48 + 5);
                 byte b = (byte)(accent.B * shade * 0.70 + 9);
-                int shift = (int)_ridgeShift[layer];
-
                 for (int x = 0; x < SCN_W; x++)
                 {
-                    int sample = (x + shift) % SCN_W;
-                    int top = _ridge[layer, sample];
+                    int top = _ridge[layer, x];
 
                     for (int y = top; y < HORIZON; y++) SP(x, y, r, g, b);
 
-                    byte er = (byte)Math.Min(255, r + accent.R * 0.22);
-                    byte eg = (byte)Math.Min(255, g + accent.G * 0.26);
-                    byte eb = (byte)Math.Min(255, b + accent.B * 0.30);
+                    byte er = (byte)Math.Min(255, r + accent.R * 0.12);
+                    byte eg = (byte)Math.Min(255, g + accent.G * 0.15);
+                    byte eb = (byte)Math.Min(255, b + accent.B * 0.18);
                     SP(x, top, er, eg, eb);
                 }
             }
@@ -593,6 +578,8 @@ namespace LarpLand
             }
         }
 
+        // WHY: вода стоит на месте по просьбе владельца, живут только блики:
+        // WHY: позиция каждого пятна постоянна, а мерцает его яркость
         private void DrawMoonPath(Color accent)
         {
             Color shine = LerpColor(accent, Colors.White, 0.6);
@@ -600,34 +587,49 @@ namespace LarpLand
             for (int y = HORIZON; y < SCN_H; y++)
             {
                 double depth = (double)(y - HORIZON) / (SCN_H - HORIZON);
-                int spread = 2 + (int)(depth * 9);
-                double alpha = (1 - depth) * 0.35;
-                int center = 156 + (int)(Math.Sin(_wave * 0.7 + y * 0.35) * 2);
+                int spread = 3 + (int)(depth * 16);
+                double fade = (1 - depth * 0.8) * 0.24;
 
-                for (int x = center - spread; x <= center + spread; x++)
+                for (int x = 156 - spread; x <= 156 + spread; x++)
                 {
-                    if (((x + y + (int)(_wave * 2)) % 3) != 0) continue;
-                    BP(x, y, shine.R, shine.G, shine.B, alpha);
+                    if (Speckle(x, y) > 0.34) continue;
+
+                    double edge = 1 - Math.Abs(x - 156) / (double)(spread + 1);
+                    double shimmer = 0.25 + 0.75 * (0.5 + 0.5 * Math.Sin(_wave * 0.8 + Speckle(x, y) * 9 + y * 0.6));
+                    BP(x, y, shine.R, shine.G, shine.B, fade * edge * shimmer);
                 }
             }
+        }
+
+        // WHY: модуль от координат рисует диагональную решётку, поэтому пятна бликов
+        // WHY: раскладывает хеш - он даёт рассыпанные точки без муара
+        private static double Speckle(int x, int y)
+        {
+            int hash = x * 73856093 ^ y * 19349663;
+            hash = (hash ^ (hash >> 13)) * 1274126177;
+            return ((hash ^ (hash >> 16)) & 0xFFFF) / 65535.0;
         }
 
         private void DrawRipples(Color accent)
         {
             Color crest = LerpColor(accent, Colors.White, 0.3);
 
-            for (int y = HORIZON + 2; y < SCN_H; y += 2)
+            for (int y = HORIZON + 2; y < SCN_H; y += 3)
             {
                 double depth = (double)(y - HORIZON) / (SCN_H - HORIZON);
-                double speed = 0.5 + depth * 1.6;
                 int length = 1 + (int)(depth * 2);
-                int gap = 9 + ((y * 7) % 11);
-                int offset = (int)(_wave * speed * 4 + y * 3) % gap;
-                double alpha = (0.05 + 0.13 * (1 - depth)) * (0.6 + 0.4 * Math.Sin(_wave * 0.5 + y));
+                int gap = 17 + ((y * 11) % 19);
+                int offset = (y * 23) % gap;
+                double weight = 0.05 + 0.10 * (1 - depth);
 
                 for (int x = -offset; x < SCN_W; x += gap)
+                {
+                    double shimmer = 0.5 + 0.5 * Math.Sin(_wave * 0.6 + Speckle(x, y) * 8 + y * 0.4);
+                    if (shimmer < 0.15) continue;
+
                     for (int i = 0; i < length; i++)
-                        BP(x + i, y, crest.R, crest.G, crest.B, alpha);
+                        BP(x + i, y, crest.R, crest.G, crest.B, weight * shimmer);
+                }
             }
         }
 
@@ -637,10 +639,10 @@ namespace LarpLand
 
             for (int y = HORIZON - 3; y < HORIZON + 3; y++)
             {
-                double alpha = 0.16 * (1 - Math.Abs(y - HORIZON) / 3.0);
+                double alpha = 0.14 * (1 - Math.Abs(y - HORIZON) / 3.0);
                 for (int x = 0; x < SCN_W; x++)
                 {
-                    double band = Math.Sin(x * 0.07 + _wave * 0.4);
+                    double band = Math.Sin(x * 0.07);
                     if (band < 0.1) continue;
                     BP(x, y, mist.R, mist.G, mist.B, alpha * band);
                 }
@@ -687,6 +689,7 @@ namespace LarpLand
             _bgModeApplied = mode;
 
             _bgAnimated = mode == "animated";
+            LauncherLog.Write($"[UI] Фон: {mode}");
             UpdateSceneAnimation();
 
             FrameworkElement? target = null;
@@ -1083,7 +1086,15 @@ namespace LarpLand
         private readonly double[] _cubeProjX = new double[8];
         private readonly double[] _cubeProjY = new double[8];
         private readonly double[] _cubeDepth = new double[8];
-        private double _cubeAngle;
+
+        private double _cubeYaw;
+        private double _cubePitch = 0.35;
+        private double _cubeYawSpin = 0.024;
+        private double _cubePitchSpin = 0.009;
+        private double _cubeBreath;
+        private double _cubeFloat;
+        private bool _cubeDragging;
+        private Point _cubeGrab;
 
         private static readonly double[,] CubeVertices =
         {
@@ -1101,7 +1112,47 @@ namespace LarpLand
         private void InitCube()
         {
             _cubeBmp = new WriteableBitmap(CUBE_W, CUBE_H, 96, 96, PixelFormats.Bgra32, null);
-            if (BlobImage != null) BlobImage.Source = _cubeBmp;
+            if (BlobImage == null) return;
+
+            BlobImage.Source = _cubeBmp;
+            BlobImage.MouseLeftButtonDown += CubeGrab;
+            BlobImage.MouseMove += CubeTurn;
+            BlobImage.MouseLeftButtonUp += CubeRelease;
+            BlobImage.MouseLeave += CubeRelease;
+        }
+
+        private void CubeGrab(object sender, MouseButtonEventArgs e)
+        {
+            _cubeDragging = true;
+            _cubeGrab = e.GetPosition(BlobImage);
+            BlobImage.CaptureMouse();
+            BlobImage.Cursor = Cursors.SizeAll;
+        }
+
+        // WHY: скорость вращения после броска остаётся как импульс, поэтому куб
+        // WHY: не замирает рывком, а докручивается и возвращается к своему ходу
+        private void CubeTurn(object sender, MouseEventArgs e)
+        {
+            if (!_cubeDragging) return;
+
+            Point now = e.GetPosition(BlobImage);
+            double dx = now.X - _cubeGrab.X;
+            double dy = now.Y - _cubeGrab.Y;
+            _cubeGrab = now;
+
+            _cubeYaw += dx * 0.012;
+            _cubePitch = Math.Clamp(_cubePitch + dy * 0.012, -1.2, 1.2);
+            _cubeYawSpin = Math.Clamp(dx * 0.006, -0.16, 0.16);
+            _cubePitchSpin = Math.Clamp(dy * 0.004, -0.08, 0.08);
+        }
+
+        private void CubeRelease(object sender, MouseEventArgs e)
+        {
+            if (!_cubeDragging) return;
+
+            _cubeDragging = false;
+            BlobImage.ReleaseMouseCapture();
+            BlobImage.Cursor = Cursors.Hand;
         }
 
         private void RenderCube()
@@ -1111,8 +1162,8 @@ namespace LarpLand
             Color accent = AccentSnapshot();
             Color bright = LerpColor(accent, Colors.White, 0.55);
 
-            _cubeAngle += 0.024;
-            ProjectCube(_cubeAngle);
+            StepCubeMotion();
+            ProjectCube();
             DrawCubeGrid(accent);
 
             for (int edge = 0; edge < CubeEdges.GetLength(0); edge++)
@@ -1120,7 +1171,7 @@ namespace LarpLand
                 int a = CubeEdges[edge, 0];
                 int b = CubeEdges[edge, 1];
                 double depth = (_cubeDepth[a] + _cubeDepth[b]) * 0.5;
-                double alpha = 0.32 + 0.68 * depth;
+                double alpha = 0.3 + 0.7 * depth;
                 DrawCubeLine((int)_cubeProjX[a], (int)_cubeProjY[a], (int)_cubeProjX[b], (int)_cubeProjY[b], accent, alpha);
             }
 
@@ -1134,14 +1185,35 @@ namespace LarpLand
             }
         }
 
-        private void ProjectCube(double angle)
+        private void StepCubeMotion()
         {
-            double cosY = Math.Cos(angle), sinY = Math.Sin(angle);
-            double cosX = Math.Cos(angle * 0.62), sinX = Math.Sin(angle * 0.62);
+            _cubeBreath += 0.021;
+            _cubeFloat += 0.014;
+
+            if (_cubeDragging) return;
+
+            _cubeYaw += _cubeYawSpin;
+            _cubePitch += _cubePitchSpin;
+
+            if (_cubePitch > 0.55 || _cubePitch < -0.55) _cubePitchSpin = -_cubePitchSpin;
+
+            _cubeYawSpin += (0.024 - _cubeYawSpin) * 0.02;
+            _cubePitchSpin += (Math.Sign(_cubePitchSpin) * 0.009 - _cubePitchSpin) * 0.02;
+        }
+
+        private void ProjectCube()
+        {
+            double cosY = Math.Cos(_cubeYaw), sinY = Math.Sin(_cubeYaw);
+            double cosX = Math.Cos(_cubePitch), sinX = Math.Sin(_cubePitch);
+            double swell = 1 + 0.05 * Math.Sin(_cubeBreath);
+            double lift = Math.Sin(_cubeFloat) * CUBE_H * 0.045;
 
             for (int i = 0; i < 8; i++)
             {
-                double x = CubeVertices[i, 0], y = CubeVertices[i, 1], z = CubeVertices[i, 2];
+                double pinch = 1 + 0.05 * Math.Sin(_cubeBreath * 1.7 + i * 0.8);
+                double x = CubeVertices[i, 0] * swell;
+                double y = CubeVertices[i, 1] * pinch;
+                double z = CubeVertices[i, 2] * swell;
 
                 double rx = x * cosY + z * sinY;
                 double rz = z * cosY - x * sinY;
@@ -1150,7 +1222,7 @@ namespace LarpLand
 
                 double scale = 2.2 / (3.4 + rz);
                 _cubeProjX[i] = CUBE_W * 0.5 + rx * scale * CUBE_W * 0.30;
-                _cubeProjY[i] = CUBE_H * 0.5 + ry * scale * CUBE_W * 0.30;
+                _cubeProjY[i] = CUBE_H * 0.5 + lift + ry * scale * CUBE_W * 0.30;
                 _cubeDepth[i] = Math.Clamp((2.0 - rz) / 4.0, 0, 1);
             }
         }
@@ -1159,7 +1231,7 @@ namespace LarpLand
         {
             for (int y = 2; y < CUBE_H; y += 6)
                 for (int x = 2; x < CUBE_W; x += 6)
-                    CubePixel(x, y, accent, 0.16);
+                    CubePixel(x, y, accent, 0.14);
         }
 
         private void DrawCubeLine(int x0, int y0, int x1, int y1, Color color, double alpha)
@@ -1288,6 +1360,9 @@ namespace LarpLand
             if (string.IsNullOrWhiteSpace(_settings.Language))
                 _settings.Language = _settings.IsFirstRun && System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName != "ru" ? "en" : "ru";
             Lang.Current = _settings.Language;
+            _discord.LauncherVersion = VerDisplay;
+            _discord.ModpackVersion = InstalledModpackVersion();
+            _discord.Initialize();
             FillColorPresets();
             ApplyThemeFromSettings();
             ApplyLanguage();
@@ -1327,13 +1402,14 @@ namespace LarpLand
             if (string.IsNullOrWhiteSpace(chosen)) return "";
             chosen = chosen.Trim();
             string trimmed = chosen.TrimEnd('\\', '/');
-            if (string.Equals(Path.GetFileName(trimmed), "BattleCraft", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Path.GetFileName(trimmed), "LarpLand", StringComparison.OrdinalIgnoreCase))
                 return trimmed;
-            return Path.Combine(chosen, "BattleCraft");
+            return Path.Combine(chosen, "LarpLand");
         }
 
         private async Task PrepareGameFolderAsync(string path)
         {
+            LauncherLog.Write($"[SETUP] Готовлю папку игры: {path}");
             try
             {
                 await Task.Run(() =>
@@ -1354,6 +1430,7 @@ namespace LarpLand
 
                 if (sessionObj == null || string.IsNullOrEmpty(sessionObj.Username)) return;
 
+                LauncherLog.Write($"[AUTH] Вход через Microsoft: {sessionObj.Username}");
                 _settings.Username = sessionObj.Username;
                 _settings.UserType = "msa";
                 AppSettings.Save(_settings);
@@ -1551,6 +1628,7 @@ namespace LarpLand
             Lang.Current = code;
             _settings.Language = code;
             AppSettings.Save(_settings);
+            LauncherLog.Write($"[UI] Язык интерфейса: {code}");
             FillColorPresets();
             ApplyThemeFromSettings();
             ApplyLanguage();
@@ -1954,6 +2032,7 @@ namespace LarpLand
                     }
                 }
 
+                LauncherLog.Write($"[PLAY] Профиль {loaderProfile}, память {_settings.RamMb} МБ, java {java}, аккаунт {_settings.UserType}");
                 var opt = new MLaunchOption { MaximumRamMb = _settings.RamMb, Session = mSession, JavaPath = java };
                 Process game = await KeepDownloading(() => _launcher.CreateProcessAsync(loaderProfile, opt).AsTask());
                 _gameProcess = game;
@@ -1970,6 +2049,7 @@ namespace LarpLand
                 DateTime started = DateTime.Now;
                 _logLines.Clear(); LogTerminalText.Text = "";
                 SetPlayState("running"); BtnPlay.IsEnabled = true; SetBusy(false);
+                _discord.ReleaseForGame();
 
                 // WHY: отмена обнуляла поле, и продолжение уже убитого запуска гасило состояние
                 // WHY: следующего: кнопка звала «Играть» под работающей игрой, а окно настроек
@@ -1980,6 +2060,7 @@ namespace LarpLand
                 _gameProcess = null;
                 SetPlayState("idle");
                 StatusText.Text = Lang.T("Готов");
+                _discord.SetMenuState();
                 _gameOutput.Close();
                 ForgetRepairFlag(game.ExitCode, DateTime.Now - started);
                 if (await RestartWithSafeJvm(game.ExitCode, DateTime.Now - started)) return;
@@ -2168,14 +2249,23 @@ namespace LarpLand
             {
                 BtnPlay.Content = Lang.T("ОТМЕНА");
                 SetButtonIcon(BtnPlay, "IconStop");
-                BtnPlay.Background = new SolidColorBrush(Color.FromRgb(180, 60, 60));
+                PaintPlayButton("#2A1013", "DangerBrush");
             }
             else
             {
                 BtnPlay.Content = Lang.T("ИГРАТЬ");
                 SetButtonIcon(BtnPlay, "IconPlay");
-                BtnPlay.SetResourceReference(Control.BackgroundProperty, "AccentBrush");
+                PaintPlayButton("#0B1B28", "AccentBrush");
             }
+        }
+
+        // WHY: у главной кнопки рамка и текст красятся вместе, иначе акцентная подпись
+        // WHY: сливается с акцентной заливкой и кнопка выглядит пустым прямоугольником
+        private void PaintPlayButton(string background, string accentKey)
+        {
+            BtnPlay.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(background));
+            BtnPlay.SetResourceReference(Control.ForegroundProperty, accentKey);
+            BtnPlay.SetResourceReference(Control.BorderBrushProperty, accentKey);
         }
 
         private void SetButtonIcon(Button btn, string geometryKey)
@@ -2285,6 +2375,7 @@ namespace LarpLand
             try
             {
                 SetProgress(0);
+                LauncherLog.Write($"[LOADER] Ставлю Minecraft {MC} и NeoForge {LOADER}");
                 StatusText.Text = Lang.T("Загрузка файлов Minecraft...");
                 await KeepDownloading(() => _launcher.InstallAsync(MC).AsTask());
                 EnsureProfiles();
@@ -2480,8 +2571,9 @@ namespace LarpLand
 
         // WHY: распаковка молча заканчивалась ничем, когда архив резал антивирус или
         // WHY: обрывался диск, и игрок узнавал об этом только по пустой игре без модов
-        private async Task InstallModpack()
+        private async Task InstallModpack(bool resetGameOptions = false)
         {
+            LauncherLog.Write($"[PACK] Установка сборки {_onlineModpackVer} в {_settings.GamePath}, сброс настроек игры: {resetGameOptions}");
             if (!await EnsureFreeSpace(_settings.GamePath, DiskSpace.ClientRequiredBytes))
                 throw new IOException(Lang.T("Недостаточно места на диске"));
 
@@ -2495,7 +2587,7 @@ namespace LarpLand
                     if (!ModpackInstall.ArchiveReadable(archive)) await DownloadModpackArchive(archive);
 
                     StatusText.Text = Lang.T("Очистка старых файлов...");
-                    var playerFiles = ModpackInstall.TakePlayerFiles(_settings.GamePath);
+                    var playerFiles = ModpackInstall.TakePlayerFiles(_settings.GamePath, resetGameOptions);
                     ModpackInstall.WipeReplacedDirs(_settings.GamePath, Log);
 
                     StatusText.Text = Lang.T("Распаковка...");
@@ -2507,11 +2599,14 @@ namespace LarpLand
                     ModpackInstall.RestorePlayerFiles(_settings.GamePath, playerFiles, Log);
                     ModpackInstall.VerifyExtracted(_settings.GamePath);
                     ModpackInstall.DropArchive(archive);
+                    LauncherLog.Write($"[PACK] Сборка развёрнута, файлов игрока сохранено: {playerFiles.Count}");
 
                     Log(Lang.T("Распаковка завершена!"));
                     _settings.IsModpackInstalled = true;
                     _settings.ModpackVersion = _onlineModpackVer != "0.0" ? _onlineModpackVer : _settings.ModpackVersion;
                     AppSettings.Save(_settings);
+                    _discord.ModpackVersion = InstalledModpackVersion();
+                    _discord.SetMenuState();
                     ShowModpackVersion();
                     return;
                 }
@@ -2534,6 +2629,9 @@ namespace LarpLand
         private async Task DownloadModpackArchive(string archive)
         {
             StatusText.Text = Lang.T("Загрузка сборки...");
+            long already = 0;
+            try { if (File.Exists(archive)) already = new FileInfo(archive).Length; } catch (IOException) { already = 0; }
+            LauncherLog.Write($"[PACK] Качаю архив в {archive}, на диске уже {already} байт");
 
             var downloader = new FileDownloader { ResumeExisting = true };
             downloader.LogMessage += LogNet;
@@ -2579,6 +2677,7 @@ namespace LarpLand
 
         private async void SwitchToMain()
         {
+            LauncherLog.Write($"[UI] Главный экран, игрок {_settings.Username} ({_settings.UserType}), папка {_settings.GamePath}");
             SetupPanel.Visibility = Visibility.Hidden; LoginPanel.Visibility = Visibility.Hidden;
             MainPanel.Visibility = Visibility.Visible; TopButtons.Visibility = Visibility.Visible;
 
@@ -2646,6 +2745,7 @@ namespace LarpLand
             var n = UsernameBox.Text.Trim();
             if (string.IsNullOrWhiteSpace(n)) { await ShowCustomDialog(Lang.T("Введите никнейм!")); return; }
             if (!Nickname.IsValid(n)) { await ShowCustomDialog(Lang.T(Nickname.RuleMessage)); return; }
+            LauncherLog.Write($"[AUTH] Оффлайн-вход: {n}");
             _settings.Username = n;
             _settings.UserType = "offline";
             AppSettings.Save(_settings);
@@ -2668,6 +2768,28 @@ namespace LarpLand
             Application.Current.Shutdown();
         }
         private void BtnMinimize_Click(object s, RoutedEventArgs e) => WindowState = WindowState.Minimized;
+
+        private bool _uiHidden;
+
+        private void BtnHideUi_Click(object s, RoutedEventArgs e)
+        {
+            _uiHidden = !_uiHidden;
+            LauncherLog.Write(_uiHidden ? "[UI] Интерфейс спрятан, виден только фон" : "[UI] Интерфейс возвращён");
+
+            FrameworkElement[] layers = { MainPanel, LoginPanel, SetupPanel };
+            foreach (FrameworkElement layer in layers)
+            {
+                if (layer.Visibility == Visibility.Collapsed) continue;
+                TweenOpacity(layer, layer.Opacity, _uiHidden ? 0 : 1, 320, OutCubic);
+            }
+
+            foreach (FrameworkElement layer in layers) layer.IsHitTestVisible = !_uiHidden;
+
+            SetButtonIcon(BtnHideUi, _uiHidden ? "IconEyeOff" : "IconEye");
+            HideUiIcon.Data = (Geometry)FindResource(_uiHidden ? "IconEyeOff" : "IconEye");
+            BtnHideUi.ToolTip = Lang.T(_uiHidden ? "Вернуть интерфейс" : "Спрятать интерфейс");
+            TopLeftTitleText.Opacity = _uiHidden ? 0.35 : 1;
+        }
 
         private void SetProgress(double v)
         {
@@ -2724,6 +2846,7 @@ namespace LarpLand
                 _settings.ModpackVersion = "0.0";
                 _settings.GamePath = np;
                 PathBox.Text = np;
+                LauncherLog.Write($"[SETUP] Папка игры сменилась на {np}, содержимое стёрто: {wipe}");
             }
             AppSettings.Save(_settings);
             if (_settings.HasGamePath)
@@ -3046,6 +3169,8 @@ namespace LarpLand
 
                 string modpackVerStr = results[0].Trim();
                 string launcherVerStr = results[1].Trim();
+                LauncherLog.Write($"[UPD] Онлайн: лаунчер {launcherVerStr}, сборка {modpackVerStr}. Установлено: лаунчер {VER}, сборка {_settings.ModpackVersion}");
+                await _discord.AdoptRemoteAppIdAsync(_httpClient);
 
                 if (ReleaseVersion.IsValid(modpackVerStr))
                 {
@@ -3083,11 +3208,15 @@ namespace LarpLand
         {
             BtnPlay.Content = Lang.T(caption);
             SetButtonIcon(BtnPlay, "IconDownload");
-            BtnPlay.Background = new SolidColorBrush(Color.FromRgb(0xE0, 0xB4, 0x4C));
+            BtnPlay.Background = new SolidColorBrush(Color.FromRgb(0x24, 0x1C, 0x0A));
+            var pending = new SolidColorBrush(Color.FromRgb(0xE0, 0xB4, 0x4C));
+            BtnPlay.Foreground = pending;
+            BtnPlay.BorderBrush = pending;
         }
 
         private async Task UpdateLauncher()
         {
+            LauncherLog.Write("[UPD] Обновление лаунчера началось");
             ShowUpdateOverlay();
             try
             {
@@ -3176,8 +3305,13 @@ namespace LarpLand
             if (!_settings.HasGamePath) { await ShowCustomDialog(Lang.T("Сначала выберите папку!")); return; }
             if (await ShowCustomDialog(Lang.T("Перекачать сборку заново?"), "Подтверждение", true))
             {
+                LauncherLog.Write("[PACK] Игрок запросил перекачку сборки");
+                bool resetOptions = await ShowCustomDialog(
+                    Lang.T("Сбросить настройки игры на рекомендованные?\nСвои клавиши, графика и громкость будут заменены настройками сборки."),
+                    "Настройки игры", true);
+
                 SetBusy(true);
-                try { await InstallModpack(); Log(Lang.T("Готово!")); StatusText.Text = Lang.T("Сборка переустановлена"); SetPlayState("idle"); }
+                try { await InstallModpack(resetOptions); Log(Lang.T("Готово!")); StatusText.Text = Lang.T("Сборка переустановлена"); SetPlayState("idle"); }
                 catch (OperationCanceledException) { Log(Lang.T("Установка отменена.")); StatusText.Text = Lang.T("Отменено"); }
                 catch (Exception ex) { await HandleErrorAsync(ex, Lang.T("Ошибка переустановки")); }
                 finally { SetBusy(false); }

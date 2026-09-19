@@ -8,10 +8,13 @@ namespace LarpLand.Core
         public const string LauncherRepo = "LarpLand";
         public const string ExeName = "LarpLand.exe";
 
+        public const string DiscordAppId = "";
+
         private const string RawRoot = "https://raw.githubusercontent.com/" + Owner + "/" + VersionsRepo + "/main/";
 
         public const string LauncherVersionUrl = RawRoot + "launcher_version.txt";
         public const string ModpackVersionUrl = RawRoot + "modpack_version.txt";
+        public const string DiscordAppIdUrl = RawRoot + "discord_app_id.txt";
         public const string ModpackUrl =
             "https://github.com/" + Owner + "/" + ModpackRepo + "/releases/download/main/release.zip";
         public const string LauncherExeUrl =

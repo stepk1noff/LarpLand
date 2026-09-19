@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -26,7 +26,7 @@ namespace LarpLand.Core
 
                 lock (_lock)
                 {
-                    File.WriteAllText(_logFile, $"[{Stamp()}] [SYS] Лаунчер запущен{Environment.NewLine}");
+                    File.WriteAllText(_logFile, $"[{Stamp()}] [SYS] LarpLand {Environment.OSVersion.VersionString}, папка настроек {dir}{Environment.NewLine}");
                 }
 
                 if (!string.IsNullOrEmpty(AppSettings.ConfigDirNotice))

@@ -8,6 +8,7 @@
         Height="650" Width="1100"
         MinWidth="800" MinHeight="500"
         WindowStartupLocation="CenterScreen"
+        Icon="app_icon.ico"
         ResizeMode="NoResize"
         Background="{DynamicResource PrimaryBrush}"
         WindowStyle="None"
@@ -93,6 +94,8 @@
         <Geometry x:Key="IconPlus">F1 M7,2 H9 V7 H14 V9 H9 V14 H7 V9 H2 V7 H7 Z</Geometry>
         <Geometry x:Key="IconTrash">F1 M6,1 H10 V3 H14 V5 H2 V3 H6 Z M3,6 H13 V15 H3 Z</Geometry>
         <Geometry x:Key="IconCheck">F1 M1,8 H3 V10 H5 V12 H7 V10 H9 V8 H11 V6 H13 V4 H15 V6 H13 V8 H11 V10 H9 V12 H7 V14 H5 V12 H3 V10 H1 Z</Geometry>
+        <Geometry x:Key="IconEye">F1 M1,8 H3 V6 H5 V4 H11 V6 H13 V8 H15 V10 H13 V12 H11 V14 H5 V12 H3 V10 H1 Z M6,7 H10 V11 H6 Z</Geometry>
+        <Geometry x:Key="IconEyeOff">F1 M1,8 H3 V6 H5 V8 H11 V6 H13 V8 H15 V10 H13 V12 H11 V10 H5 V12 H3 V10 H1 Z</Geometry>
         <Geometry x:Key="IconRestart">F1 M3,2 H13 V4 H15 V8 H13 V5 H3 V11 H13 V9 H15 V13 H13 V14 H3 V12 H1 V4 H3 Z</Geometry>
 
         <sys:Double x:Key="BloomBlurRadius">15</sys:Double>
@@ -168,9 +171,9 @@
         <Style x:Key="PixelButton" TargetType="Button">
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="IsTabStop" Value="False"/>
-            <Setter Property="Background" Value="#050B12"/>
+            <Setter Property="Background" Value="#070D14"/>
             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}"/>
             <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -185,26 +188,14 @@
                     <ControlTemplate TargetType="Button">
                         <Grid RenderTransformOrigin="0.5,0.5">
                             <Grid.RenderTransform>
-                                <TransformGroup>
-                                    <TranslateTransform x:Name="LiftTr" X="0" Y="0"/>
-                                    <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1"/>
-                                </TransformGroup>
+                                <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1"/>
                             </Grid.RenderTransform>
-
-                            <Rectangle x:Name="Shade" Fill="#7A000914" Margin="4,4,-4,-4"/>
 
                             <Border x:Name="Bd"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
                                     Padding="{TemplateBinding Padding}">
-                                <Border.Effect>
-                                    <DropShadowEffect x:Name="GlowEffect"
-                                                      Color="{DynamicResource AccentColor}"
-                                                      BlurRadius="12"
-                                                      ShadowDepth="0"
-                                                      Opacity="0"/>
-                                </Border.Effect>
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <StackPanel.RenderTransform>
                                         <TranslateTransform x:Name="BtnTr" X="0" Y="0"/>
@@ -216,7 +207,7 @@
                                 </StackPanel>
                             </Border>
 
-                            <Rectangle x:Name="DotFloor" Height="2" VerticalAlignment="Bottom" Margin="4,0,4,-6" Fill="{StaticResource DotRowBrush}" Opacity="0"/>
+                            <Border x:Name="Edge" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="{TemplateBinding BorderThickness}" Opacity="0" IsHitTestVisible="False"/>
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="Tag" Value="{x:Null}">
@@ -226,49 +217,35 @@
                                 <Setter TargetName="BtnIcon" Property="Margin" Value="0"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#1B3446"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="GlowEffect" Storyboard.TargetProperty="Opacity" To="0.85" Duration="0:0:0.15"/>
-                                            <DoubleAnimation Storyboard.TargetName="DotFloor" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.15"/>
-                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="X" To="-2" Duration="0:0:0.09"/>
-                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="Y" To="-2" Duration="0:0:0.09"/>
+                                            <DoubleAnimation Storyboard.TargetName="Edge" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.16"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
                                 <Trigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="GlowEffect" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="DotFloor" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2"/>
-                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.18"/>
-                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="Y" To="0" Duration="0:0:0.18"/>
+                                            <DoubleAnimation Storyboard.TargetName="Edge" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Shade" Property="Margin" Value="1,1,-1,-1"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="X" To="2" Duration="0:0:0.05"/>
-                                            <DoubleAnimation Storyboard.TargetName="LiftTr" Storyboard.TargetProperty="Y" To="2" Duration="0:0:0.05"/>
-                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.97" Duration="0:0:0.05"/>
-                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.97" Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.985" Duration="0:0:0.05"/>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.94" Duration="0:0:0.05"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
                                 <Trigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.25">
-                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2"/></DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.25">
-                                                <DoubleAnimation.EasingFunction><BackEase EasingMode="EaseOut" Amplitude="2"/></DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.2"/>
+                                            <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -283,10 +260,10 @@
         </Style>
 
         <Style x:Key="PlayButton" TargetType="Button" BasedOn="{StaticResource PixelButton}">
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}"/>
-            <Setter Property="BorderBrush" Value="#B9EDFF"/>
-            <Setter Property="BorderThickness" Value="3"/>
+            <Setter Property="Background" Value="#0B1B28"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="2"/>
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="Padding" Value="30,11"/>
         </Style>
@@ -756,6 +733,9 @@
                 <TextBlock x:Name="TopLeftTitleText" Text="LARPLAND LAUNCHER" FontSize="12" FontWeight="Bold" Foreground="#93B6CC" VerticalAlignment="Center"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="BtnHideUi" Style="{StaticResource SystemButton}" Click="BtnHideUi_Click" ToolTip="Спрятать интерфейс" AutomationProperties.Name="Спрятать интерфейс">
+                    <Path x:Name="HideUiIcon" Data="{StaticResource IconEye}" Fill="#8FB3C9" Width="15" Height="15" Stretch="Uniform" SnapsToDevicePixels="True"/>
+                </Button>
                 <Button Style="{StaticResource SystemButton}" Click="BtnMinimize_Click">
                     <Rectangle Width="12" Height="2" Fill="#8FB3C9"/>
                 </Button>
@@ -1046,13 +1026,13 @@
                                 </ItemsControl>
 
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
-                                    <Button x:Name="BtnRecheck" Click="BtnRecheck_Click" Style="{StaticResource PixelButton}" Margin="0,0,12,0">
+                                    <Button x:Name="BtnRecheck" Click="BtnRecheck_Click" Style="{StaticResource PixelButton}" Margin="0,0,12,0" AutomationProperties.Name="Проверить снова">
                                         <TextBlock x:Name="BtnRecheckText" Text="Проверить снова"/>
                                     </Button>
                                     <Button x:Name="BtnOpenLauncherLog" Click="BtnOpenLauncherLog_Click" Style="{StaticResource PixelButton}" Margin="0,0,12,0">
                                         <TextBlock x:Name="BtnOpenLogText" Text="Открыть лог"/>
                                     </Button>
-                                    <Button x:Name="BtnCloseChecks" Click="BtnCloseChecks_Click" Style="{StaticResource PixelButton}">
+                                    <Button x:Name="BtnCloseChecks" Click="BtnCloseChecks_Click" Style="{StaticResource PixelButton}" AutomationProperties.Name="Закрыть проверку">
                                         <TextBlock x:Name="BtnCloseChecksText" Text="Закрыть"/>
                                     </Button>
                                 </StackPanel>

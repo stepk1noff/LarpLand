@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 
 namespace LarpLand.Core
 {
@@ -10,6 +11,8 @@ namespace LarpLand.Core
         public static readonly string[] ReplacedDirs = { "mods", "config", "resourcepacks" };
 
         public static readonly string[] PlayerOwnedFiles = { "servers.dat", "options.txt", "optionsof.txt", "optionsshaders.txt" };
+
+        private static readonly string[] GameOptionFiles = { "options.txt", "optionsof.txt", "optionsshaders.txt" };
 
         public static string ArchivePath(string gamePath) => Path.Combine(CacheDir(gamePath), "release.zip");
 
@@ -24,12 +27,14 @@ namespace LarpLand.Core
             }
         }
 
-        public static Dictionary<string, byte[]> TakePlayerFiles(string gamePath)
+        public static Dictionary<string, byte[]> TakePlayerFiles(string gamePath, bool resetGameOptions = false)
         {
             var saved = new Dictionary<string, byte[]>();
 
             foreach (string name in PlayerOwnedFiles)
             {
+                if (resetGameOptions && GameOptionFiles.Contains(name)) continue;
+
                 string path = Path.Combine(gamePath, name);
                 try { if (File.Exists(path)) saved[name] = File.ReadAllBytes(path); }
                 catch (Exception error) when (error is IOException or UnauthorizedAccessException)
