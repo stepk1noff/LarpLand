@@ -296,6 +296,7 @@ namespace LarpLand
                 Name = "LarpLandScene"
             };
             _sceneThread.Start();
+            StartCubeLoop();
         }
 
         // WHY: гребень строится замкнутым случайным блужданием, иначе при закольцованном
@@ -339,7 +340,6 @@ namespace LarpLand
             lock (_frameLock)
             {
                 Buffer.BlockCopy(_sceneBuf, 0, _scenePresent, 0, _sceneBuf.Length);
-                Buffer.BlockCopy(_cubeBuf, 0, _cubePresent, 0, _cubeBuf.Length);
                 if (_framePending) return;
                 _framePending = true;
             }
@@ -353,7 +353,6 @@ namespace LarpLand
             {
                 _framePending = false;
                 if (_bgAnimated) _sceneBmp?.WritePixels(new Int32Rect(0, 0, SCN_W, SCN_H), _scenePresent, SCN_W * 4, 0);
-                _cubeBmp?.WritePixels(new Int32Rect(0, 0, CUBE_W, CUBE_H), _cubePresent, CUBE_W * 4, 0);
             }
 
             if (_bgModeApplied == "gradient" && _gradientInit) TickGradient();
@@ -377,7 +376,6 @@ namespace LarpLand
             StepMeteor();
 
             if (_bgAnimated) RenderScene();
-            RenderCube();
         }
 
         private void StepMeteor()
@@ -1091,6 +1089,9 @@ namespace LarpLand
         private double _cubePitch = 0.35;
         private double _cubeYawSpin = 0.024;
         private double _cubePitchSpin = 0.009;
+        private System.Threading.Thread? _cubeThread;
+        private readonly object _cubeLock = new();
+        private volatile bool _cubePending;
         private double _cubeBreath;
         private double _cubeFloat;
         private bool _cubeDragging;
@@ -1119,6 +1120,54 @@ namespace LarpLand
             BlobImage.MouseMove += CubeTurn;
             BlobImage.MouseLeftButtonUp += CubeRelease;
             BlobImage.MouseLeave += CubeRelease;
+        }
+
+        // WHY: куб живёт в своём потоке с шагом 25 мс - на общей сцене с её 80 мс
+        // WHY: вращение мышью выглядело рывками
+        private void StartCubeLoop()
+        {
+            _cubeThread = new System.Threading.Thread(CubeLoop)
+            {
+                IsBackground = true,
+                Priority = System.Threading.ThreadPriority.BelowNormal,
+                Name = "LarpLandCube"
+            };
+            _cubeThread.Start();
+        }
+
+        private void CubeLoop()
+        {
+            while (_sceneAlive)
+            {
+                _sceneGate.Wait();
+                if (!_sceneAlive) return;
+
+                RenderCube();
+                PresentCube();
+
+                System.Threading.Thread.Sleep(25);
+            }
+        }
+
+        private void PresentCube()
+        {
+            lock (_cubeLock)
+            {
+                Buffer.BlockCopy(_cubeBuf, 0, _cubePresent, 0, _cubeBuf.Length);
+                if (_cubePending) return;
+                _cubePending = true;
+            }
+
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Render, new Action(PushCube));
+        }
+
+        private void PushCube()
+        {
+            lock (_cubeLock)
+            {
+                _cubePending = false;
+                _cubeBmp?.WritePixels(new Int32Rect(0, 0, CUBE_W, CUBE_H), _cubePresent, CUBE_W * 4, 0);
+            }
         }
 
         private void CubeGrab(object sender, MouseButtonEventArgs e)
@@ -1187,13 +1236,13 @@ namespace LarpLand
 
         private void StepCubeMotion()
         {
-            _cubeBreath += 0.021;
-            _cubeFloat += 0.014;
+            _cubeBreath += 0.007;
+            _cubeFloat += 0.0045;
 
             if (_cubeDragging) return;
 
-            _cubeYaw += _cubeYawSpin;
-            _cubePitch += _cubePitchSpin;
+            _cubeYaw += _cubeYawSpin * 0.33;
+            _cubePitch += _cubePitchSpin * 0.33;
 
             if (_cubePitch > 0.55 || _cubePitch < -0.55) _cubePitchSpin = -_cubePitchSpin;
 
