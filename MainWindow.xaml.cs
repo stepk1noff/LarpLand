@@ -50,13 +50,13 @@ namespace LarpLand
         {
             private MainWindow _w;
             public StatusTextDummy(MainWindow w) { _w = w; }
-            public string Text { set { _w.Log(value); } get { return ""; } }
+            public string Text { set { _w.Status(value); } get { return ""; } }
         }
         private StatusTextDummy StatusText => new StatusTextDummy(this);
 
         private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
 
-        private const string VER = "2026.09.19";
+        private const string VER = "2026.09.19hotfix";
         private static string VerDisplay => ReleaseVersion.Display(VER);
         private const string MC = GameVersions.Minecraft;
         private const string LOADER = GameVersions.NeoForge;
@@ -1333,10 +1333,14 @@ namespace LarpLand
 
         private void LogError(string message) => LogTagged("[ERR]", message);
 
-        private void LogTagged(string prefix, string message)
+        // WHY: имена файлов от установщика идут десятками в секунду - в окне они уместны,
+        // WHY: а в файле забивают всё, из-за чего в логе игрока не видно самих событий
+        private void Status(string message) => LogTagged("[SYS]", message, toFile: false);
+
+        private void LogTagged(string prefix, string message, bool toFile = true)
         {
-            if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(() => LogTagged(prefix, message)); return; }
-            LauncherLog.Write($"{prefix} {message}");
+            if (!Dispatcher.CheckAccess()) { Dispatcher.BeginInvoke(() => LogTagged(prefix, message, toFile)); return; }
+            if (toFile) LauncherLog.Write($"{prefix} {message}");
             _logLines.Add($"{prefix} {message}");
             if (_logLines.Count > 200) _logLines.RemoveAt(0);
             LogTerminalText.Text = string.Join("\n", _logLines);
