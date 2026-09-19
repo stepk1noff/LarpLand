@@ -2787,7 +2787,9 @@ namespace LarpLand
 
             SetButtonIcon(BtnHideUi, _uiHidden ? "IconEyeOff" : "IconEye");
             HideUiIcon.Data = (Geometry)FindResource(_uiHidden ? "IconEyeOff" : "IconEye");
-            BtnHideUi.ToolTip = Lang.T(_uiHidden ? "Вернуть интерфейс" : "Спрятать интерфейс");
+            string hint = Lang.T(_uiHidden ? "Вернуть интерфейс" : "Спрятать интерфейс");
+            BtnHideUi.ToolTip = hint;
+            System.Windows.Automation.AutomationProperties.SetName(BtnHideUi, hint);
             TopLeftTitleText.Opacity = _uiHidden ? 0.35 : 1;
         }
 
