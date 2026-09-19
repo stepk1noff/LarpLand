@@ -85,12 +85,18 @@ namespace LarpLand.Core
             if (_client == null) { Initialize(); return; }
             if (!_client.IsInitialized) return;
 
+            string details = Lang.F("В лаунчере | v{0}", LauncherVersion);
+            string state = string.IsNullOrWhiteSpace(ModpackVersion)
+                ? Lang.T("Сборка не установлена")
+                : Lang.F("Сборка {0}", ModpackVersion);
+
             try
             {
+                LauncherLog.Write($"[DISCORD] Статус: {details} / {state}");
                 _client.SetPresence(new RichPresence
                 {
-                    Details = Lang.F("В лаунчере | v{0}", LauncherVersion),
-                    State = Lang.F("Сборка {0}", ModpackVersion),
+                    Details = details,
+                    State = state,
                     Assets = new Assets
                     {
                         LargeImageKey = "rpc_icon",

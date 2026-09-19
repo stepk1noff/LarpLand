@@ -246,6 +246,7 @@ namespace LarpLand.Core
             ["Профиль NeoForge не найден, лаунчер ставит его заново."] = "The NeoForge profile is missing, the launcher is installing it again.",
             ["СОХРАНИТЬ И ЗАКРЫТЬ"] = "SAVE AND CLOSE",
             ["Сборка {0}"] = "Pack {0}",
+            ["Сборка не установлена"] = "Pack is not installed",
             ["Сборка переустановлена"] = "The pack was reinstalled",
             ["Скачивание Java 21..."] = "Downloading Java 21...",
             ["Установка Java 21..."] = "Installing Java 21...",

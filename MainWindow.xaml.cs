@@ -56,7 +56,7 @@ namespace LarpLand
 
         private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
 
-        private const string VER = "2026.09.19v3";
+        private const string VER = "2026.09.19v4";
         private static string VerDisplay => ReleaseVersion.Display(VER);
         private const string MC = GameVersions.Minecraft;
         private const string LOADER = GameVersions.NeoForge;
@@ -1414,7 +1414,7 @@ namespace LarpLand
                 _settings.Language = _settings.IsFirstRun && System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName != "ru" ? "en" : "ru";
             Lang.Current = _settings.Language;
             _discord.LauncherVersion = VerDisplay;
-            _discord.ModpackVersion = InstalledModpackVersion();
+            _discord.ModpackVersion = ModpackReady ? ReleaseVersion.Display(_settings.ModpackVersion) : "";
             _discord.Initialize();
             FillColorPresets();
             ApplyThemeFromSettings();
@@ -2658,7 +2658,7 @@ namespace LarpLand
                     _settings.IsModpackInstalled = true;
                     _settings.ModpackVersion = _onlineModpackVer != "0.0" ? _onlineModpackVer : _settings.ModpackVersion;
                     AppSettings.Save(_settings);
-                    _discord.ModpackVersion = InstalledModpackVersion();
+                    _discord.ModpackVersion = ModpackReady ? ReleaseVersion.Display(_settings.ModpackVersion) : "";
                     _discord.SetMenuState();
                     ShowModpackVersion();
                     return;
@@ -3236,7 +3236,7 @@ namespace LarpLand
                 }
 
                 ShowModpackVersion();
-                StatusText.Text = Lang.F("Сборка {0}", InstalledModpackVersion());
+                StatusText.Text = ModpackReady ? Lang.F("Сборка {0}", InstalledModpackVersion()) : Lang.T("Сборка не установлена");
 
                 if (ReleaseVersion.IsNewer(launcherVerStr, VER)
                     && await ShowCustomDialog(Lang.F("Обновить лаунчер до {0}?", ReleaseVersion.Display(launcherVerStr)), "Обновление", true))
@@ -3251,8 +3251,10 @@ namespace LarpLand
             }
         }
 
+        private bool ModpackReady => _settings.IsModpackInstalled && _settings.ModpackVersion != "0.0";
+
         private string InstalledModpackVersion() =>
-            _settings.ModpackVersion == "0.0" ? "—" : ReleaseVersion.Display(_settings.ModpackVersion);
+            ModpackReady ? ReleaseVersion.Display(_settings.ModpackVersion) : "-";
 
         private void ShowModpackVersion()
         {
